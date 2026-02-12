@@ -1,0 +1,16 @@
+package com.erenalyoruk.cashgrid.audit.model;
+
+public enum AuditAction {
+    PAYMENT_CREATED,
+    PAYMENT_APPROVED,
+    PAYMENT_REJECTED,
+    PAYMENT_PROCESSING,
+    PAYMENT_COMPLETED,
+    PAYMENT_FAILED,
+    ACCOUNT_CREATED,
+    ACCOUNT_UPDATED,
+    ACCOUNT_DEACTIVATED,
+    ACCOUNT_ACTIVATED,
+    USER_REGISTERED,
+    USER_LOGIN
+}

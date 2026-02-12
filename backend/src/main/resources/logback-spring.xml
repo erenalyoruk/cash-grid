@@ -3,7 +3,7 @@
   <include resource="org/springframework/boot/logging/logback/defaults.xml" />
 
   <property name="LOG_PATTERN"
-    value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{correlationId:-}] %-5level %logger{36} - %msg%n" />
+    value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{correlationId:-NO_CID}] %-5level %logger{36} - %msg%n" />
 
   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
@@ -11,7 +11,22 @@
     </encoder>
   </appender>
 
-  <root level="INFO">
-    <appender-ref ref="CONSOLE" />
-  </root>
+  <springProfile name="dev">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE" />
+    </root>
+    <logger name="com.erenalyoruk.cashgrid" level="DEBUG" />
+  </springProfile>
+
+  <springProfile name="test">
+    <root level="WARN">
+      <appender-ref ref="CONSOLE" />
+    </root>
+  </springProfile>
+
+  <springProfile name="prod">
+    <root level="INFO">
+      <appender-ref ref="CONSOLE" />
+    </root>
+  </springProfile>
 </configuration>

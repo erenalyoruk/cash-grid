@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: cashgrid-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: cashgrid
+      POSTGRES_USER: cashgrid
+      POSTGRES_PASSWORD: cashgrid_dev
+    volumes:
+      - cashgrid_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cashgrid"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cashgrid_pgdata:

@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:18-alpine:///cashgrid_test
+    username: test
+    password: test
+
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    clean-disabled: false
+
+logging:
+  level:
+    com.erenalyoruk.cashgrid: INFO

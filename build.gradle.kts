@@ -29,7 +29,7 @@ subprojects {
             )
             trimTrailingWhitespace()
             endWithNewline()
-            indentWithSpaces(4)
+            leadingTabsToSpaces(4)
         }
     }
 

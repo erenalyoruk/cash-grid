@@ -9,6 +9,7 @@ import com.erenalyoruk.cashgrid.auth.repository.UserRepository;
 import com.erenalyoruk.cashgrid.common.dto.PageResponse;
 import com.erenalyoruk.cashgrid.common.exception.BusinessException;
 import com.erenalyoruk.cashgrid.common.exception.ResourceNotFoundException;
+import com.erenalyoruk.cashgrid.limit.service.LimitService;
 import com.erenalyoruk.cashgrid.payment.dto.*;
 import com.erenalyoruk.cashgrid.payment.mapper.PaymentMapper;
 import com.erenalyoruk.cashgrid.payment.model.Payment;
@@ -37,6 +38,7 @@ public class PaymentService {
     private final UserRepository userRepository;
     private final PaymentMapper paymentMapper;
     private final AuditService auditService;
+    private final LimitService limitService;
 
     @Transactional
     public PaymentResponse create(CreatePaymentRequest request, String username) {
@@ -85,6 +87,9 @@ public class PaymentService {
                 (request.currency() != null && !request.currency().isBlank())
                         ? request.currency().toUpperCase()
                         : "TRY";
+
+        // Limit check
+        limitService.checkLimits(maker.getRole(), currency, request.amount(), maker.getId());
 
         Payment payment =
                 Payment.builder()

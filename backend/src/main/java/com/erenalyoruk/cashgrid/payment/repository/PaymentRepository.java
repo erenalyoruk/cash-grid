@@ -2,6 +2,8 @@ package com.erenalyoruk.cashgrid.payment.repository;
 
 import com.erenalyoruk.cashgrid.payment.model.Payment;
 import com.erenalyoruk.cashgrid.payment.model.PaymentStatus;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -27,4 +29,15 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
             @Param("status") PaymentStatus status,
             @Param("checkerId") UUID checkerId,
             Pageable pageable);
+
+    @Query(
+            "SELECT COALESCE(SUM(p.amount), 0) FROM Payment p "
+                    + "WHERE p.createdBy.id = :userId "
+                    + "AND p.currency = :currency "
+                    + "AND p.status NOT IN ('REJECTED', 'FAILED') "
+                    + "AND p.createdAt >= :since")
+    BigDecimal sumDailySpent(
+            @Param("userId") UUID userId,
+            @Param("currency") String currency,
+            @Param("since") Instant since);
 }

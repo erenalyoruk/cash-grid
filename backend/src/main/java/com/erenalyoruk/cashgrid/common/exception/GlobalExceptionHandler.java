@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -88,6 +90,38 @@ public class GlobalExceptionHandler {
                         .build();
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException ex) {
+        log.warn("Authentication error: {}", ex.getMessage());
+
+        ErrorResponse response =
+                ErrorResponse.builder()
+                        .timestamp(Instant.now())
+                        .status(HttpStatus.UNAUTHORIZED.value())
+                        .errorCode("AUTHENTICATION_FAILED")
+                        .message(ex.getMessage())
+                        .correlationId(MDC.get("correlationId"))
+                        .build();
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException ex) {
+        log.warn("Access denied: {}", ex.getMessage());
+
+        ErrorResponse response =
+                ErrorResponse.builder()
+                        .timestamp(Instant.now())
+                        .status(HttpStatus.FORBIDDEN.value())
+                        .errorCode("ACCESS_DENIED")
+                        .message(ex.getMessage())
+                        .correlationId(MDC.get("correlationId"))
+                        .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
     @ExceptionHandler(Exception.class)

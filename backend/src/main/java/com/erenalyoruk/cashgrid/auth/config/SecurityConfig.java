@@ -29,10 +29,26 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(
+                        ex ->
+                                ex.authenticationEntryPoint(
+                                        (request, response, authException) -> {
+                                            response.setStatus(
+                                                    jakarta.servlet.http.HttpServletResponse
+                                                            .SC_UNAUTHORIZED);
+                                            response.setContentType("application/json");
+                                            response.getWriter()
+                                                    .write(
+                                                            "{\"status\":401,\"errorCode\":\"UNAUTHORIZED\",\"message\":\"Authentication"
+                                                                + " required\"}");
+                                        }))
                 .authorizeHttpRequests(
                         auth ->
                                 auth
-                                        // Public endpoints
+                                        // /me requires authentication
+                                        .requestMatchers("/api/v1/auth/me")
+                                        .authenticated()
+                                        // Other auth endpoints are public
                                         .requestMatchers("/api/v1/auth/**")
                                         .permitAll()
                                         .requestMatchers(

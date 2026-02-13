@@ -6,7 +6,7 @@ plugins {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(25))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
 }
 
@@ -50,11 +50,14 @@ dependencies {
     implementation("com.bucket4j:bucket4j_jdk17-core:8.16.1")
 
     // Test
+    implementation(platform("org.testcontainers:testcontainers-bom:1.21.4"))
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.springframework.security:spring-security-test")
+
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

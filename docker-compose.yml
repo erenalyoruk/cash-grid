@@ -17,5 +17,25 @@ services:
       timeout: 5s
       retries: 5
 
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: cashgrid-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://postgres:5432/cashgrid
+      DATABASE_USERNAME: cashgrid
+      DATABASE_PASSWORD: cashgrid_dev
+      JWT_SECRET: cashgrid-docker-secret-key-must-be-at-least-32-characters-long
+      JWT_ACCESS_EXPIRATION: 900000
+      JWT_REFRESH_EXPIRATION: 604800000
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   cashgrid_pgdata:

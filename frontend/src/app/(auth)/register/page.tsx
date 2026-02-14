@@ -44,6 +44,7 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       username: "",
+      email: "",
       password: "",
       role: "MAKER",
     },
@@ -79,6 +80,23 @@ export default function RegisterPage() {
                   <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input placeholder="Choose a username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="Enter your email"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

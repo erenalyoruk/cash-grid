@@ -27,7 +27,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Check formatting
-        run: ./gradlew spotlessCheck --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew spotlessCheck --no-daemon
 
   test:
     name: Tests
@@ -47,7 +49,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run tests
-        run: ./gradlew :backend:test --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew :backend:test --no-daemon
 
       - name: Upload test results
         if: always()
@@ -75,7 +79,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Build JAR
-        run: ./gradlew :backend:bootJar --no-daemon -x test -x spotlessCheck
+        run: |
+          chmod +x gradlew
+          ./gradlew :backend:bootJar --no-daemon -x test -x spotlessCheck
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4

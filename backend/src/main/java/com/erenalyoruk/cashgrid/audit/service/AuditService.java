@@ -28,14 +28,15 @@ public class AuditService {
             String correlationId,
             String details) {
 
-        AuditLog auditLog = AuditLog.builder()
-                .entityType(entityType)
-                .entityId(entityId)
-                .action(action)
-                .performedBy(performedBy)
-                .correlationId(correlationId)
-                .details(details)
-                .build();
+        AuditLog auditLog =
+                AuditLog.builder()
+                        .entityType(entityType)
+                        .entityId(entityId)
+                        .action(action)
+                        .performedBy(performedBy)
+                        .correlationId(correlationId)
+                        .details(details)
+                        .build();
 
         auditLogRepository.save(auditLog);
 

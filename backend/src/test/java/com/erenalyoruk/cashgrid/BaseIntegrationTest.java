@@ -4,6 +4,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import com.erenalyoruk.cashgrid.common.filter.CorrelationIdFilter;
+import com.erenalyoruk.cashgrid.common.filter.RateLimitFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,12 +40,14 @@ public abstract class BaseIntegrationTest {
 
     @Autowired private CorrelationIdFilter correlationIdFilter;
 
+    @Autowired private RateLimitFilter rateLimitFilter;
+
     @BeforeEach
     void setUpBase() {
         this.mockMvc =
                 webAppContextSetup(webApplicationContext)
                         .apply(springSecurity())
-                        .addFilters(correlationIdFilter)
+                        .addFilters(correlationIdFilter, rateLimitFilter)
                         .build();
     }
 

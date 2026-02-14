@@ -7,8 +7,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,24 +19,23 @@ public class AuditService {
 
     private final AuditLogRepository auditLogRepository;
 
-    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void log(
             String entityType,
             UUID entityId,
             AuditAction action,
             UUID performedBy,
+            String correlationId,
             String details) {
 
-        AuditLog auditLog =
-                AuditLog.builder()
-                        .entityType(entityType)
-                        .entityId(entityId)
-                        .action(action)
-                        .performedBy(performedBy)
-                        .correlationId(MDC.get("correlationId"))
-                        .details(details)
-                        .build();
+        AuditLog auditLog = AuditLog.builder()
+                .entityType(entityType)
+                .entityId(entityId)
+                .action(action)
+                .performedBy(performedBy)
+                .correlationId(correlationId)
+                .details(details)
+                .build();
 
         auditLogRepository.save(auditLog);
 

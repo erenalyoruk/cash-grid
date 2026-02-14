@@ -22,3 +22,11 @@ app:
     secret: cashgrid-test-secret-key-must-be-at-least-32-characters-long
     access-token-expiration: 900000
     refresh-token-expiration: 604800000
+
+  rate-limit:
+    default-capacity: 1000
+    default-refill-tokens: 1000
+    default-refill-seconds: 1
+    auth-capacity: 1000
+    auth-refill-tokens: 1000
+    auth-refill-seconds: 1

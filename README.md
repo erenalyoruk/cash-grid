@@ -6,21 +6,24 @@ A production-grade, full-stack financial operations platform. Featuring a modern
 
 ## 📸 Visual Tour
 
-![Demo Page](assets/page.png "Demo")
-
 ### 📊 Dashboard Overview
 
-![Dashboard Placeholder](https://via.placeholder.com/800x450?text=Dashboard+Overview+Screenshot)
+![Dashboard](assets/dashboard.png)
 _Centralized view of system status, user roles, and quick actions._
 
 ### 💸 Payments & Details
 
-![Payments Placeholder](https://via.placeholder.com/800x450?text=Payments+Management+Screenshot)
+![Payments](assets/payment.png)
 _Modern payment table with the new **Transaction Details Pane** showing full audit history._
+
+### 📝 Audit Logs
+
+![Audit](assets/audit.png)
+_Detailed, tamper-proof logs capture every significant action in the system. Each audit entry records the user, timestamp, action type, and affected entities, ensuring full traceability for compliance and security reviews._
 
 ### 👤 Profile & Security
 
-![Settings Placeholder](https://via.placeholder.com/800x450?text=User+Settings+Screenshot)
+![Settings](assets/settings.png)
 _Comprehensive account management for updating credentials and preferences._
 
 ---

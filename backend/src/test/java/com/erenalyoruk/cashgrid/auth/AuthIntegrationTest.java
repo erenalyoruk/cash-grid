@@ -199,7 +199,7 @@ class AuthIntegrationTest extends BaseIntegrationTest {
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(
                                         "{\"currentPassword\":\"Wrong!\",\"newPassword\":\"NewPass123!\"}"))
-                .andExpect(status().isUnprocessableEntity())
+                .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.errorCode").value("INVALID_PASSWORD"));
     }
 }

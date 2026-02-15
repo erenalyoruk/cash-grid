@@ -1,304 +1,145 @@
-# CashGrid — Commercial Cash Payment Platform
+# CashGrid — Full-Stack Commercial Cash Payment Platform
 
-A production-grade backend for a Turkish banking/fintech cash payment system built with **Spring Boot 4** and **Java 21**.
-
----
-
-## Tech Stack
-
-| Layer            | Technology                                |
-| ---------------- | ----------------------------------------- |
-| Language         | Java 21                                   |
-| Framework        | Spring Boot 4.0.2                         |
-| Database         | PostgreSQL 18                             |
-| Migrations       | Flyway                                    |
-| Auth             | JWT (jjwt 0.13.0) + Spring Security       |
-| Validation       | Jakarta Validation + Custom IBAN (Mod-97) |
-| Mapping          | MapStruct 1.6.3                           |
-| API Docs         | springdoc-openapi 3.0.1 (Swagger UI)      |
-| Rate Limiting    | Bucket4j 8.16.1                           |
-| Build            | Gradle 9.3.1 (Kotlin DSL)                 |
-| Code Style       | Spotless + Google Java Format (AOSP)      |
-| Testing          | JUnit 5 + Testcontainers 1.21.4           |
-| Containerization | Docker (multi-stage build)                |
-| CI               | GitHub Actions                            |
+A production-grade, full-stack financial operations platform. Featuring a modern **Next.js** frontend and a robust **Spring Boot** backend, built to manage commercial money flows with high security and auditability.
 
 ---
 
-## Architecture
+## 📸 Visual Tour
 
-```
-com.erenalyoruk.cashgrid
-├── auth/          # JWT authentication, login, register, token refresh
-├── account/       # Account CRUD, IBAN validation (TR Mod-97)
-├── payment/       # Payment workflow with maker-checker approval
-├── limit/         # Per-role, per-currency single & daily limits
-├── audit/         # Immutable audit log for all payment events
-└── common/        # Shared: exception handling, filters, DTOs
-```
+![Demo Page](assets/page.png "Demo")
 
-### Key Features
+### 📊 Dashboard Overview
 
-- **JWT Authentication** — Access + refresh tokens, role-based authorization (`MAKER`, `CHECKER`, `ADMIN`)
-- **Maker-Checker Payments** — Maker creates payment, Checker approves/rejects. State machine: `PENDING → APPROVED/REJECTED`, `APPROVED → COMPLETED/FAILED`
-- **IBAN Validation** — Turkish IBAN format with Mod-97 check digit verification
-- **Pessimistic Locking** — `SELECT FOR UPDATE` on balance transfers to prevent race conditions
-- **Idempotency** — Duplicate payment detection via reference number
-- **Rate Limiting** — Per-IP and per-token rate limits using token bucket algorithm
-- **Correlation ID** — Request tracing via `X-Correlation-Id` header on every request/response
-- **Audit Trail** — Every payment state change is recorded with actor, action, timestamp, and correlation ID
-- **Soft Delete** — Accounts use soft delete (`deleted` flag)
-- **Pagination** — Consistent `PageResponse<T>` wrapper for all list endpoints
+![Dashboard Placeholder](https://via.placeholder.com/800x450?text=Dashboard+Overview+Screenshot)
+_Centralized view of system status, user roles, and quick actions._
+
+### 💸 Payments & Details
+
+![Payments Placeholder](https://via.placeholder.com/800x450?text=Payments+Management+Screenshot)
+_Modern payment table with the new **Transaction Details Pane** showing full audit history._
+
+### 👤 Profile & Security
+
+![Settings Placeholder](https://via.placeholder.com/800x450?text=User+Settings+Screenshot)
+_Comprehensive account management for updating credentials and preferences._
 
 ---
 
-## Prerequisites
+## 🛠 Tech Stack
 
-- **Java 21** (or Docker)
-- **Docker & Docker Compose** (for PostgreSQL and containerized deployment)
+### 💻 Frontend
+
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS 4 (Modern utility-first CSS)
+- **UI Components**: Shadcn UI (Radix UI Primitives)
+- **State Management**: Zustand
+- **Data Fetching**: TanStack Query v5 (React Query)
+- **Forms**: React Hook Form + Zod Validation
+- **Icons**: Lucide React
+
+### ⚙️ Backend
+
+- **Language**: Java 21
+- **Framework**: Spring Boot 4.0.2
+- **Security**: Spring Security + JWT (jjwt)
+- **Database**: PostgreSQL 18 + Flyway Migrations
+- **API Docs**: Swagger UI (springdoc-openapi)
+- **Rate Limiting**: Bucket4j
 
 ---
 
-## Quick Start
+## 🚀 Quick Start (Docker)
 
-### Option 1: Docker Compose (full stack)
+The easiest way to run the entire stack (Frontend, Backend, and Database) is using Docker Compose.
 
 ```bash
 docker compose up --build
 ```
 
-This starts PostgreSQL and the backend. The API is available at `http://localhost:8080`.
-
-### Option 2: Local Development
-
-1. Start PostgreSQL only:
-
-```bash
-docker compose up postgres
-```
-
-2. Run the backend with the `dev` profile:
-
-```bash
-./gradlew :backend:bootRun
-```
-
-The backend starts on port **8080** with the `dev` profile by default.
-
----
-
-## API Documentation
-
-Once the application is running, visit:
-
+- **Frontend**: [http://localhost:3000](http://localhost:3000)
+- **Backend API**: [http://localhost:8080](http://localhost:8080)
 - **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
-- **OpenAPI JSON**: [http://localhost:8080/api-docs](http://localhost:8080/api-docs)
 
 ---
 
-## API Overview
+## 🏗 Architecture & Features
 
-### Auth
+### Key Modules
 
-| Method | Endpoint                | Description           | Access        |
-| ------ | ----------------------- | --------------------- | ------------- |
-| POST   | `/api/v1/auth/register` | Register a new user   | Public        |
-| POST   | `/api/v1/auth/login`    | Login and get tokens  | Public        |
-| POST   | `/api/v1/auth/refresh`  | Refresh access token  | Public        |
-| GET    | `/api/v1/auth/me`       | Get current user info | Authenticated |
+- **Auth Module**: Secure JWT-based authentication with Login, Register, and Token Refresh.
+- **Account Module**: Management of bank accounts with TR Mod-97 IBAN validation.
+- **Payment Module**: Maker-Checker workflow ensuring no single point of failure for transactions.
+- **Limit Module**: Dynamic transaction limits configured per role and currency.
+- **Audit Module**: Immutable event sourcing for every payment state change.
 
-### Accounts
+### Highlights
 
-| Method | Endpoint                | Description               | Access        |
-| ------ | ----------------------- | ------------------------- | ------------- |
-| POST   | `/api/v1/accounts`      | Create an account         | ADMIN         |
-| GET    | `/api/v1/accounts`      | List accounts (paginated) | Authenticated |
-| GET    | `/api/v1/accounts/{id}` | Get account by ID         | Authenticated |
-| PUT    | `/api/v1/accounts/{id}` | Update account            | ADMIN         |
-| DELETE | `/api/v1/accounts/{id}` | Soft delete account       | ADMIN         |
-
-### Payments
-
-| Method | Endpoint                        | Description               | Access        |
-| ------ | ------------------------------- | ------------------------- | ------------- |
-| POST   | `/api/v1/payments`              | Create a payment          | MAKER         |
-| GET    | `/api/v1/payments`              | List payments (paginated) | Authenticated |
-| GET    | `/api/v1/payments/{id}`         | Get payment by ID         | Authenticated |
-| POST   | `/api/v1/payments/{id}/approve` | Approve a payment         | CHECKER       |
-| POST   | `/api/v1/payments/{id}/reject`  | Reject a payment          | CHECKER       |
-
-### Limits
-
-| Method | Endpoint              | Description    | Access |
-| ------ | --------------------- | -------------- | ------ |
-| GET    | `/api/v1/limits`      | List limits    | ADMIN  |
-| PUT    | `/api/v1/limits/{id}` | Update a limit | ADMIN  |
-| POST   | `/api/v1/limits`      | Create a limit | ADMIN  |
-
-### Audit Logs
-
-| Method | Endpoint                  | Description                 | Access |
-| ------ | ------------------------- | --------------------------- | ------ |
-| GET    | `/api/v1/audit-logs`      | List audit logs (paginated) | ADMIN  |
-| GET    | `/api/v1/audit-logs/{id}` | Get audit log by ID         | ADMIN  |
+- **Maker-Checker Process**: Payments created by a `MAKER` must be approved by a `CHECKER`.
+- **Idempotency**: Prevents duplicate payments using unique reference keys.
+- **Real-time Validation**: Frontend and Backend Zod/Jakarta validation for data integrity.
+- **Profile Management**: Users can securely update their username, email, and password.
+- **Modern UI**: Sleek, responsive interface with Dark/Light mode support.
 
 ---
 
-## Example Flow
+## 📡 API Overview
 
-```bash
-# 1. Register a MAKER user
-curl -s -X POST http://localhost:8080/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"maker1","password":"Pass1234!","role":"MAKER"}'
+### Authentication & Profile
 
-# 2. Login
-TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"maker1","password":"Pass1234!"}' | jq -r '.accessToken')
+| Method | Endpoint                   | Description               | Access        |
+| :----- | :------------------------- | :------------------------ | :------------ |
+| POST   | `/api/v1/auth/login`       | Authenticate & get tokens | Public        |
+| PATCH  | `/api/v1/auth/me/username` | Update display name       | Authenticated |
+| PATCH  | `/api/v1/auth/me/email`    | Update contact email      | Authenticated |
+| PUT    | `/api/v1/auth/me/password` | Change security password  | Authenticated |
 
-# 3. Create a payment (requires MAKER role + existing accounts)
-curl -s -X POST http://localhost:8080/api/v1/payments \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{
-    "sourceAccountId": 1,
-    "targetAccountId": 2,
-    "amount": 1000.00,
-    "currency": "TRY",
-    "description": "Invoice payment"
-  }'
+### Core Operations
 
-# 4. Login as CHECKER and approve
-CHECKER_TOKEN=$(curl -s -X POST http://localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"checker1","password":"Pass1234!"}' | jq -r '.accessToken')
-
-curl -s -X POST http://localhost:8080/api/v1/payments/1/approve \
-  -H "Authorization: Bearer $CHECKER_TOKEN"
-```
+| Module       | Feature    | Capability                                                     |
+| :----------- | :--------- | :------------------------------------------------------------- |
+| **Accounts** | CRUD       | Create, Read, Update, and Soft-Delete bank accounts.           |
+| **Payments** | Workflow   | Initiate, Approve, Reject, and View detailed transaction logs. |
+| **Limits**   | Controls   | Set maximum single and daily limits for roles.                 |
+| **Audit**    | Compliance | Filter and search through immutable system logs.               |
 
 ---
 
-## Testing
+## 🧪 Testing
 
-All 35 integration tests use **Testcontainers** (spins up a real PostgreSQL container automatically — Docker must be running):
+### Backend Integration Tests
+
+Uses **Testcontainers** to run 40+ tests against a real PostgreSQL instance.
 
 ```bash
 ./gradlew :backend:test
 ```
 
-View HTML test report:
-
-```
-backend/build/reports/tests/test/index.html
-```
-
-### Test Suites
-
-| Suite                   | Tests | Description                                       |
-| ----------------------- | ----- | ------------------------------------------------- |
-| AuthIntegrationTest     | 8     | Register, login, refresh, /me, validation         |
-| AccountIntegrationTest  | 5     | CRUD, IBAN validation, soft delete                |
-| PaymentIntegrationTest  | 8     | Create, approve, reject, idempotency, limits      |
-| LimitIntegrationTest    | 3     | CRUD, limit enforcement                           |
-| AuditLogIntegrationTest | 5     | Audit log listing, filtering, payment audit trail |
-| CorrelationIdTest       | 2     | X-Correlation-Id header propagation               |
-| RateLimitTest           | 3     | Per-IP and per-token rate limiting                |
-| CashGridApplicationTest | 1     | Application context loads                         |
-
----
-
-## Code Formatting
-
-The project enforces **Google Java Format (AOSP)** via Spotless:
+### Frontend Linting
 
 ```bash
-# Check formatting
-./gradlew spotlessCheck
-
-# Auto-fix formatting
-./gradlew spotlessApply
+cd frontend
+npm run lint
 ```
 
-Formatting is checked automatically in CI and as part of `./gradlew check`.
-
 ---
 
-## CI / CD
-
-GitHub Actions runs on every push/PR to `main`:
-
-1. **Format** — `spotlessCheck`
-2. **Test** — Full integration test suite with Testcontainers
-3. **Build** — Produces bootJar artifact
-
-See [.github/workflows/ci.yml](.github/workflows/ci.yml) for details.
-
----
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 cash-grid/
-├── .github/workflows/ci.yml        # GitHub Actions CI pipeline
-├── backend/
-│   ├── Dockerfile                   # Multi-stage Docker build
-│   ├── build.gradle.kts             # Backend dependencies
-│   └── src/
-│       ├── main/
-│       │   ├── java/com/erenalyoruk/cashgrid/
-│       │   │   ├── CashGridApplication.java
-│       │   │   ├── auth/            # JWT auth module
-│       │   │   ├── account/         # Account CRUD module
-│       │   │   ├── payment/         # Payment workflow module
-│       │   │   ├── limit/           # Transaction limits module
-│       │   │   ├── audit/           # Audit logging module
-│       │   │   └── common/          # Shared components
-│       │   └── resources/
-│       │       ├── application.yaml
-│       │       ├── application-{dev,test,prod}.yaml
-│       │       └── db/migration/    # Flyway V1–V5
-│       └── test/                    # Integration tests
-├── docker-compose.yml               # PostgreSQL + Backend
-├── build.gradle.kts                 # Root build config + Spotless
-├── settings.gradle.kts
-└── gradle/                          # Gradle 9.3.1 wrapper
+├── frontend/                # Next.js Application
+│   ├── src/app/             # Pages and Layouts
+│   ├── src/components/ui/   # Shadcn Components
+│   └── src/lib/             # API, Hooks, and Store
+├── backend/                 # Spring Boot Application
+│   ├── src/main/java/       # Business Logic
+│   └── src/test/java/       # Integration Tests
+├── docker-compose.yml       # Full-stack Orchestration
+└── README.md                # Project Documentation
 ```
 
 ---
 
-## Configuration
+## 📄 License
 
-### Spring Profiles
-
-| Profile         | Purpose           | Database                   |
-| --------------- | ----------------- | -------------------------- |
-| `dev` (default) | Local development | localhost:5432             |
-| `test`          | Integration tests | Testcontainers (automatic) |
-| `prod`          | Production        | Environment variables      |
-
-### Environment Variables (prod)
-
-| Variable                 | Description                                            |
-| ------------------------ | ------------------------------------------------------ |
-| `DATABASE_URL`           | JDBC URL (e.g. `jdbc:postgresql://host:5432/cashgrid`) |
-| `DATABASE_USERNAME`      | Database username                                      |
-| `DATABASE_PASSWORD`      | Database password                                      |
-| `JWT_SECRET`             | JWT signing secret (min 32 characters)                 |
-| `JWT_ACCESS_EXPIRATION`  | Access token TTL in ms (default: 900000 = 15 min)      |
-| `JWT_REFRESH_EXPIRATION` | Refresh token TTL in ms (default: 604800000 = 7 days)  |
-
----
-
-## Health Check
-
-```bash
-curl http://localhost:8080/actuator/health
-```
-
----
-
-## License
-
-This project is for educational and demonstration purposes.
+This project is built for educational and demonstration purposes.

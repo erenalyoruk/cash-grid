@@ -17,8 +17,7 @@ import org.springframework.http.MediaType;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class PaymentIntegrationTest extends BaseIntegrationTest {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    @Autowired private AccountRepository accountRepository;
 
     private TestHelper helper;
 
@@ -31,27 +30,31 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
     }
 
     private void ensureAccountsExist() {
-        Account source = accountRepository
-                .findByIban(SOURCE_IBAN)
-                .orElseGet(
-                        () -> accountRepository.save(
-                                Account.builder()
-                                        .customerName("Source Corp")
-                                        .iban(SOURCE_IBAN)
-                                        .currency(Currency.TRY)
-                                        .build()));
+        Account source =
+                accountRepository
+                        .findByIban(SOURCE_IBAN)
+                        .orElseGet(
+                                () ->
+                                        accountRepository.save(
+                                                Account.builder()
+                                                        .customerName("Source Corp")
+                                                        .iban(SOURCE_IBAN)
+                                                        .currency(Currency.TRY)
+                                                        .build()));
         source.setBalance(new BigDecimal("1000000.00"));
         accountRepository.save(source);
 
-        Account target = accountRepository
-                .findByIban(TARGET_IBAN)
-                .orElseGet(
-                        () -> accountRepository.save(
-                                Account.builder()
-                                        .customerName("Target Corp")
-                                        .iban(TARGET_IBAN)
-                                        .currency(Currency.TRY)
-                                        .build()));
+        Account target =
+                accountRepository
+                        .findByIban(TARGET_IBAN)
+                        .orElseGet(
+                                () ->
+                                        accountRepository.save(
+                                                Account.builder()
+                                                        .customerName("Target Corp")
+                                                        .iban(TARGET_IBAN)
+                                                        .currency(Currency.TRY)
+                                                        .build()));
         target.setBalance(new BigDecimal("500000.00"));
         accountRepository.save(target);
     }
@@ -80,18 +83,18 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
         String makerToken = getMakerToken();
 
         mockMvc.perform(
-                post("/api/v1/payments")
-                        .header("Authorization", "Bearer " + makerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                                String.format(
-                                        "{\"idempotencyKey\":\"idem-001\","
-                                                + "\"sourceIban\":\"%s\","
-                                                + "\"targetIban\":\"%s\","
-                                                + "\"amount\":5000.00,"
-                                                + "\"currency\":\"TRY\","
-                                                + "\"description\":\"Test payment\"}",
-                                        SOURCE_IBAN, TARGET_IBAN)))
+                        post("/api/v1/payments")
+                                .header("Authorization", "Bearer " + makerToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        String.format(
+                                                "{\"idempotencyKey\":\"idem-001\","
+                                                        + "\"sourceIban\":\"%s\","
+                                                        + "\"targetIban\":\"%s\","
+                                                        + "\"amount\":5000.00,"
+                                                        + "\"currency\":\"TRY\","
+                                                        + "\"description\":\"Test payment\"}",
+                                                SOURCE_IBAN, TARGET_IBAN)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("PENDING"))
                 .andExpect(jsonPath("$.amount").value(5000.00))
@@ -105,36 +108,39 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
         ensureAccountsExist();
         String makerToken = getMakerToken();
 
-        String body = String.format(
-                "{\"idempotencyKey\":\"idem-dup-001\","
-                        + "\"sourceIban\":\"%s\","
-                        + "\"targetIban\":\"%s\","
-                        + "\"amount\":1000.00,"
-                        + "\"currency\":\"TRY\","
-                        + "\"description\":\"Idempotent test\"}",
-                SOURCE_IBAN, TARGET_IBAN);
+        String body =
+                String.format(
+                        "{\"idempotencyKey\":\"idem-dup-001\","
+                                + "\"sourceIban\":\"%s\","
+                                + "\"targetIban\":\"%s\","
+                                + "\"amount\":1000.00,"
+                                + "\"currency\":\"TRY\","
+                                + "\"description\":\"Idempotent test\"}",
+                        SOURCE_IBAN, TARGET_IBAN);
 
         // First call
-        String response1 = mockMvc.perform(
-                post("/api/v1/payments")
-                        .header("Authorization", "Bearer " + makerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String response1 =
+                mockMvc.perform(
+                                post("/api/v1/payments")
+                                        .header("Authorization", "Bearer " + makerToken)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(body))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
         // Second call — same idempotency key
-        String response2 = mockMvc.perform(
-                post("/api/v1/payments")
-                        .header("Authorization", "Bearer " + makerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String response2 =
+                mockMvc.perform(
+                                post("/api/v1/payments")
+                                        .header("Authorization", "Bearer " + makerToken)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(body))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
         JsonNode json1 = objectMapper.readTree(response1);
         JsonNode json2 = objectMapper.readTree(response2);
@@ -150,17 +156,17 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
         String makerToken = getMakerToken();
 
         mockMvc.perform(
-                post("/api/v1/payments")
-                        .header("Authorization", "Bearer " + makerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                                String.format(
-                                        "{\"idempotencyKey\":\"idem-same-001\","
-                                                + "\"sourceIban\":\"%s\","
-                                                + "\"targetIban\":\"%s\","
-                                                + "\"amount\":100.00,"
-                                                + "\"currency\":\"TRY\"}",
-                                        SOURCE_IBAN, SOURCE_IBAN)))
+                        post("/api/v1/payments")
+                                .header("Authorization", "Bearer " + makerToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        String.format(
+                                                "{\"idempotencyKey\":\"idem-same-001\","
+                                                        + "\"sourceIban\":\"%s\","
+                                                        + "\"targetIban\":\"%s\","
+                                                        + "\"amount\":100.00,"
+                                                        + "\"currency\":\"TRY\"}",
+                                                SOURCE_IBAN, SOURCE_IBAN)))
                 .andExpect(status().isUnprocessableContent())
                 .andExpect(jsonPath("$.errorCode").value("SAME_ACCOUNT"));
     }
@@ -174,29 +180,30 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
         String checkerToken = getCheckerToken();
 
         // Create payment
-        String createResponse = mockMvc.perform(
-                post("/api/v1/payments")
-                        .header("Authorization", "Bearer " + makerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                                String.format(
-                                        "{\"idempotencyKey\":\"idem-approve-001\","
-                                                + "\"sourceIban\":\"%s\","
-                                                + "\"targetIban\":\"%s\","
-                                                + "\"amount\":2000.00,"
-                                                + "\"currency\":\"TRY\"}",
-                                        SOURCE_IBAN, TARGET_IBAN)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String createResponse =
+                mockMvc.perform(
+                                post("/api/v1/payments")
+                                        .header("Authorization", "Bearer " + makerToken)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(
+                                                String.format(
+                                                        "{\"idempotencyKey\":\"idem-approve-001\","
+                                                                + "\"sourceIban\":\"%s\","
+                                                                + "\"targetIban\":\"%s\","
+                                                                + "\"amount\":2000.00,"
+                                                                + "\"currency\":\"TRY\"}",
+                                                        SOURCE_IBAN, TARGET_IBAN)))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
         String paymentId = objectMapper.readTree(createResponse).get("id").asText();
 
         // Approve
         mockMvc.perform(
-                post("/api/v1/payments/" + paymentId + "/approve")
-                        .header("Authorization", "Bearer " + checkerToken))
+                        post("/api/v1/payments/" + paymentId + "/approve")
+                                .header("Authorization", "Bearer " + checkerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("COMPLETED"))
                 .andExpect(jsonPath("$.approvedByUsername").value("paychecker"));
@@ -217,8 +224,8 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
         }
 
         mockMvc.perform(
-                post("/api/v1/payments/00000000-0000-0000-0000-000000000001/approve")
-                        .header("Authorization", "Bearer " + makerToken))
+                        post("/api/v1/payments/00000000-0000-0000-0000-000000000001/approve")
+                                .header("Authorization", "Bearer " + makerToken))
                 .andExpect(status().isForbidden());
     }
 
@@ -230,30 +237,31 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
         String makerToken = getMakerToken();
         String checkerToken = getCheckerToken();
 
-        String createResponse = mockMvc.perform(
-                post("/api/v1/payments")
-                        .header("Authorization", "Bearer " + makerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                                String.format(
-                                        "{\"idempotencyKey\":\"idem-reject-001\","
-                                                + "\"sourceIban\":\"%s\","
-                                                + "\"targetIban\":\"%s\","
-                                                + "\"amount\":3000.00,"
-                                                + "\"currency\":\"TRY\"}",
-                                        SOURCE_IBAN, TARGET_IBAN)))
-                .andExpect(status().isCreated())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        String createResponse =
+                mockMvc.perform(
+                                post("/api/v1/payments")
+                                        .header("Authorization", "Bearer " + makerToken)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(
+                                                String.format(
+                                                        "{\"idempotencyKey\":\"idem-reject-001\","
+                                                                + "\"sourceIban\":\"%s\","
+                                                                + "\"targetIban\":\"%s\","
+                                                                + "\"amount\":3000.00,"
+                                                                + "\"currency\":\"TRY\"}",
+                                                        SOURCE_IBAN, TARGET_IBAN)))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
         String paymentId = objectMapper.readTree(createResponse).get("id").asText();
 
         mockMvc.perform(
-                post("/api/v1/payments/" + paymentId + "/reject")
-                        .header("Authorization", "Bearer " + checkerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"reason\":\"Suspicious transaction\"}"))
+                        post("/api/v1/payments/" + paymentId + "/reject")
+                                .header("Authorization", "Bearer " + checkerToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"reason\":\"Suspicious transaction\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("REJECTED"))
                 .andExpect(jsonPath("$.rejectionReason").value("Suspicious transaction"));
@@ -266,10 +274,10 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
         String checkerToken = getCheckerToken();
 
         mockMvc.perform(
-                get("/api/v1/payments/pending")
-                        .header("Authorization", "Bearer " + checkerToken)
-                        .param("page", "0")
-                        .param("size", "10"))
+                        get("/api/v1/payments/pending")
+                                .header("Authorization", "Bearer " + checkerToken)
+                                .param("page", "0")
+                                .param("size", "10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
     }
@@ -281,14 +289,14 @@ class PaymentIntegrationTest extends BaseIntegrationTest {
         String checkerToken = getCheckerToken();
 
         mockMvc.perform(
-                post("/api/v1/payments")
-                        .header("Authorization", "Bearer " + checkerToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(
-                                "{\"idempotencyKey\":\"idem-forbidden\","
-                                        + "\"sourceIban\":\"TR330006100519786457841326\","
-                                        + "\"targetIban\":\"TR320010009999901234567890\","
-                                        + "\"amount\":100.00}"))
+                        post("/api/v1/payments")
+                                .header("Authorization", "Bearer " + checkerToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"idempotencyKey\":\"idem-forbidden\","
+                                                + "\"sourceIban\":\"TR330006100519786457841326\","
+                                                + "\"targetIban\":\"TR320010009999901234567890\","
+                                                + "\"amount\":100.00}"))
                 .andExpect(status().isForbidden());
     }
 }

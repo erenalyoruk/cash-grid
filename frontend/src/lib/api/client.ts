@@ -10,7 +10,6 @@ const client = axios.create({
   },
 });
 
-// ---- Request interceptor: attach JWT ----
 client.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("accessToken");
@@ -21,7 +20,6 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
-// ---- Response interceptor: refresh on 401, normalize errors ----
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (token: string) => void;

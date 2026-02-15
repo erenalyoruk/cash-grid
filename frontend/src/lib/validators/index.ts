@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// ---- Auth ----
 
 export const loginSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters"),
@@ -45,8 +44,6 @@ export const updatePasswordSchema = z
 
 export type UpdatePasswordFormValues = z.infer<typeof updatePasswordSchema>;
 
-// ---- Account ----
-
 export const createAccountSchema = z.object({
   iban: z
     .string()
@@ -66,8 +63,6 @@ export const updateAccountSchema = z.object({
 });
 
 export type UpdateAccountFormValues = z.infer<typeof updateAccountSchema>;
-
-// ---- Payment ----
 
 export const createPaymentSchema = z.object({
   idempotencyKey: z.string().min(1, "Idempotency key is required"),
@@ -89,8 +84,6 @@ export const createPaymentSchema = z.object({
 });
 
 export type CreatePaymentFormValues = z.infer<typeof createPaymentSchema>;
-
-// ---- Limit ----
 
 export const createLimitSchema = z.object({
   role: z.enum(["MAKER", "CHECKER", "ADMIN"]),

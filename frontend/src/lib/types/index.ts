@@ -1,8 +1,6 @@
-// Shared enums
 export type Role = "MAKER" | "CHECKER" | "ADMIN";
 export type Currency = "TRY" | "USD" | "EUR" | "GBP";
 
-// ---- Auth ----
 export interface LoginRequest {
   username: string;
   password: string;
@@ -47,7 +45,6 @@ export interface UpdatePasswordRequest {
   newPassword: string;
 }
 
-// ---- Account ----
 export interface AccountResponse {
   id: string;
   customerName: string;
@@ -69,7 +66,6 @@ export interface UpdateAccountRequest {
   customerName: string;
 }
 
-// ---- Payment ----
 export type PaymentStatus =
   | "PENDING"
   | "APPROVED"
@@ -130,7 +126,6 @@ export interface UpdateLimitRequest {
   maxDailyAmount?: number;
 }
 
-// ---- Audit ----
 export interface AuditLogResponse {
   id: string;
   entityType: string;
@@ -142,7 +137,6 @@ export interface AuditLogResponse {
   createdAt: string;
 }
 
-// ---- Common ----
 export interface PageResponse<T> {
   content: T[];
   totalElements: number;

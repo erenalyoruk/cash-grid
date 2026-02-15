@@ -10,7 +10,6 @@ permissions:
   contents: read
 
 jobs:
-  # ---- Backend ----
   backend-format:
     name: Backend — Spotless Format Check
     runs-on: ubuntu-latest
@@ -91,7 +90,6 @@ jobs:
           path: backend/build/libs/*.jar
           retention-days: 7
 
-  # ---- Frontend ----
   frontend-lint:
     name: Frontend — Lint & Format Check
     runs-on: ubuntu-latest

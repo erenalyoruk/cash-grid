@@ -16,7 +16,7 @@ export const paymentsApi = {
     return response.data;
   },
 
-  getById: async (id: number): Promise<PaymentResponse> => {
+  getById: async (id: string): Promise<PaymentResponse> => {
     const response = await client.get<PaymentResponse>(
       `${PAYMENTS_BASE}/${id}`,
     );
@@ -28,16 +28,17 @@ export const paymentsApi = {
     return response.data;
   },
 
-  approve: async (id: number): Promise<PaymentResponse> => {
+  approve: async (id: string): Promise<PaymentResponse> => {
     const response = await client.post<PaymentResponse>(
       `${PAYMENTS_BASE}/${id}/approve`,
     );
     return response.data;
   },
 
-  reject: async (id: number): Promise<PaymentResponse> => {
+  reject: async (id: string, reason: string): Promise<PaymentResponse> => {
     const response = await client.post<PaymentResponse>(
       `${PAYMENTS_BASE}/${id}/reject`,
+      { reason },
     );
     return response.data;
   },

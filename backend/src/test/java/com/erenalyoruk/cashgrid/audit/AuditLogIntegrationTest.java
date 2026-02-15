@@ -280,4 +280,63 @@ class AuditLogIntegrationTest extends BaseIntegrationTest {
         }
         Assertions.assertTrue(hasRejection, "Audit log should contain PAYMENT_REJECTED entry");
     }
+
+    @Test
+    @Order(6)
+    @DisplayName("Audit log — search endpoint with filters returns results")
+    void searchWithFilters() throws Exception {
+        ensureAccountsExist();
+        String makerToken = getMakerToken();
+        String adminToken = getAdminToken();
+
+        String correlationId = "test-filter-corr-" + System.nanoTime();
+
+        // Create and approve a payment to generate audit entries
+        String createResponse =
+                mockMvc.perform(
+                                post("/api/v1/payments")
+                                        .header("Authorization", "Bearer " + makerToken)
+                                        .header("X-Correlation-Id", correlationId)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(
+                                                String.format(
+                                                        "{\"idempotencyKey\":\"idem-filter-%s\",\"sourceIban\":\"%s\",\"targetIban\":\"%s\",\"amount\":10.00,\"currency\":\"TRY\"}",
+                                                        System.nanoTime(),
+                                                        SOURCE_IBAN,
+                                                        TARGET_IBAN)))
+                        .andExpect(status().isCreated())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
+
+        objectMapper.readTree(createResponse).get("id").asText();
+
+        // Query /api/v1/audit-logs with correlationId and entityType
+        mockMvc.perform(
+                        get("/api/v1/audit-logs")
+                                .header("Authorization", "Bearer " + adminToken)
+                                .param("correlationId", correlationId)
+                                .param("entityType", "PAYMENT")
+                                .param("page", "0")
+                                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(
+                        jsonPath("$.content.length()")
+                                .value(org.hamcrest.Matchers.greaterThanOrEqualTo(1)));
+
+        // Also test action filter (PAYMENT_CREATED)
+        mockMvc.perform(
+                        get("/api/v1/audit-logs")
+                                .header("Authorization", "Bearer " + adminToken)
+                                .param("action", "PAYMENT_CREATED")
+                                .param("correlationId", correlationId)
+                                .param("page", "0")
+                                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray())
+                .andExpect(
+                        jsonPath("$.content.length()")
+                                .value(org.hamcrest.Matchers.greaterThanOrEqualTo(1)));
+    }
 }

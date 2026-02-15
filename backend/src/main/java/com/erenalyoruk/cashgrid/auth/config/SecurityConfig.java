@@ -54,10 +54,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         auth ->
                                 auth
-                                        // /me requires authentication
-                                        .requestMatchers("/api/v1/auth/me")
+                                        // Profile endpoints require authentication
+                                        .requestMatchers("/api/v1/auth/me", "/api/v1/auth/me/**")
                                         .authenticated()
-                                        // Other auth endpoints are public
+                                        // Public auth endpoints (login, register, refresh)
                                         .requestMatchers("/api/v1/auth/**")
                                         .permitAll()
                                         .requestMatchers(
@@ -95,7 +95,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);

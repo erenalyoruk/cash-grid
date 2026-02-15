@@ -137,4 +137,69 @@ class AuthIntegrationTest extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.accessToken").isNotEmpty())
                 .andExpect(jsonPath("$.refreshToken").isNotEmpty());
     }
+
+    @Test
+    @DisplayName("Update Username — success")
+    void updateUsername_success() throws Exception {
+        String token = helper.registerAndGetToken("user1", "user1@test.com", "MAKER");
+
+        mockMvc.perform(
+                        patch("/api/v1/auth/me/username")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"newUsername\":\"user1updated\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.username").value("user1updated"));
+    }
+
+    @Test
+    @DisplayName("Update Email — success")
+    void updateEmail_success() throws Exception {
+        String token = helper.registerAndGetToken("user2", "user2@test.com", "MAKER");
+
+        mockMvc.perform(
+                        patch("/api/v1/auth/me/email")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"newEmail\":\"user2updated@test.com\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value("user2updated@test.com"));
+    }
+
+    @Test
+    @DisplayName("Update Password — success")
+    void updatePassword_success() throws Exception {
+        String token = helper.registerAndGetToken("user3", "user3@test.com", "MAKER");
+
+        mockMvc.perform(
+                        put("/api/v1/auth/me/password")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"currentPassword\":\"Test1234!\",\"newPassword\":\"NewPass123!\"}"))
+                .andExpect(status().isNoContent());
+
+        // Verify login with new password
+        mockMvc.perform(
+                        post("/api/v1/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{\"username\":\"user3\",\"password\":\"NewPass123!\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Update Password — wrong current password should return 422")
+    void updatePassword_wrongCurrent() throws Exception {
+        String token = helper.registerAndGetToken("user4", "user4@test.com", "MAKER");
+
+        mockMvc.perform(
+                        put("/api/v1/auth/me/password")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        "{\"currentPassword\":\"Wrong!\",\"newPassword\":\"NewPass123!\"}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value("INVALID_PASSWORD"));
+    }
 }

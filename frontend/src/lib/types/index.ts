@@ -1,7 +1,8 @@
-// ---- Auth ----
-
+// Shared enums
 export type Role = "MAKER" | "CHECKER" | "ADMIN";
+export type Currency = "TRY" | "USD" | "EUR" | "GBP";
 
+// ---- Auth ----
 export interface LoginRequest {
   username: string;
   password: string;
@@ -24,41 +25,51 @@ export interface AuthResponse {
 }
 
 export interface UserResponse {
-  id: number;
+  id: string;
   username: string;
+  email: string;
   role: Role;
+  isActive: boolean;
   createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateUsernameRequest {
+  newUsername: string;
+}
+
+export interface UpdateEmailRequest {
+  newEmail: string;
+}
+
+export interface UpdatePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
 // ---- Account ----
-
-export type Currency = "TRY" | "USD" | "EUR" | "GBP";
-
 export interface AccountResponse {
-  id: number;
+  id: string;
+  customerName: string;
   iban: string;
-  ownerName: string;
   currency: Currency;
   balance: number;
-  deleted: boolean;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateAccountRequest {
+  customerName: string;
   iban: string;
-  ownerName: string;
-  currency: Currency;
-  balance: number;
+  currency: string;
 }
 
 export interface UpdateAccountRequest {
-  ownerName?: string;
-  balance?: number;
+  customerName: string;
 }
 
 // ---- Payment ----
-
 export type PaymentStatus =
   | "PENDING"
   | "APPROVED"
@@ -67,73 +78,71 @@ export type PaymentStatus =
   | "FAILED";
 
 export interface PaymentResponse {
-  id: number;
-  referenceNumber: string;
-  sourceAccountId: number;
-  targetAccountId: number;
+  id: string;
+  idempotencyKey: string;
+  sourceIban: string;
+  targetIban: string;
   amount: number;
   currency: Currency;
-  description: string;
+  description: string | null;
   status: PaymentStatus;
-  createdBy: string;
-  approvedBy: string | null;
+  createdByUsername: string;
+  approvedByUsername: string | null;
+  rejectionReason: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreatePaymentRequest {
-  sourceAccountId: number;
-  targetAccountId: number;
+  idempotencyKey: string;
+  sourceIban: string;
+  targetIban: string;
   amount: number;
-  currency: Currency;
-  description: string;
+  currency: string;
+  description?: string;
+}
+
+export interface RejectPaymentRequest {
+  reason: string;
 }
 
 // ---- Limit ----
-
 export interface LimitResponse {
-  id: number;
+  id: string;
   role: Role;
+  maxSingleAmount: number;
+  maxDailyAmount: number;
   currency: Currency;
-  singleTransactionLimit: number;
-  dailyLimit: number;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateLimitRequest {
   role: Role;
-  currency: Currency;
-  singleTransactionLimit: number;
-  dailyLimit: number;
+  maxSingleAmount: number;
+  maxDailyAmount: number;
+  currency: string;
 }
 
 export interface UpdateLimitRequest {
-  singleTransactionLimit?: number;
-  dailyLimit?: number;
+  maxSingleAmount?: number;
+  maxDailyAmount?: number;
 }
 
 // ---- Audit ----
-
-export type AuditAction =
-  | "PAYMENT_CREATED"
-  | "PAYMENT_APPROVED"
-  | "PAYMENT_REJECTED"
-  | "PAYMENT_COMPLETED"
-  | "PAYMENT_FAILED";
-
 export interface AuditLogResponse {
-  id: number;
-  paymentId: number;
-  action: AuditAction;
+  id: string;
+  entityType: string;
+  entityId: string;
+  action: string;
   performedBy: string;
-  details: string | null;
   correlationId: string | null;
+  details: string | null;
   createdAt: string;
 }
 
 // ---- Common ----
-
 export interface PageResponse<T> {
   content: T[];
   totalElements: number;

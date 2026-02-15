@@ -19,7 +19,7 @@ export const limitsApi = {
   },
 
   update: async (
-    id: number,
+    id: string,
     data: UpdateLimitRequest,
   ): Promise<LimitResponse> => {
     const response = await client.put<LimitResponse>(

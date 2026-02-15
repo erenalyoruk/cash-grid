@@ -17,7 +17,7 @@ export const accountsApi = {
     return response.data;
   },
 
-  getById: async (id: number): Promise<AccountResponse> => {
+  getById: async (id: string): Promise<AccountResponse> => {
     const response = await client.get<AccountResponse>(
       `${ACCOUNTS_BASE}/${id}`,
     );
@@ -30,7 +30,7 @@ export const accountsApi = {
   },
 
   update: async (
-    id: number,
+    id: string,
     data: UpdateAccountRequest,
   ): Promise<AccountResponse> => {
     const response = await client.put<AccountResponse>(
@@ -40,7 +40,7 @@ export const accountsApi = {
     return response.data;
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await client.delete(`${ACCOUNTS_BASE}/${id}`);
   },
 };

@@ -11,7 +11,7 @@ export function usePayments(page = 0, size = 10) {
   });
 }
 
-export function usePayment(id: number) {
+export function usePayment(id: string) {
   return useQuery({
     queryKey: [...PAYMENTS_KEY, id],
     queryFn: () => paymentsApi.getById(id),
@@ -34,7 +34,7 @@ export function useApprovePayment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => paymentsApi.approve(id),
+    mutationFn: (id: string) => paymentsApi.approve(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PAYMENTS_KEY });
     },
@@ -45,7 +45,8 @@ export function useRejectPayment() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => paymentsApi.reject(id),
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      paymentsApi.reject(id, reason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PAYMENTS_KEY });
     },

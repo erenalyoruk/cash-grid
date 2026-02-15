@@ -115,7 +115,76 @@ public class AuthService {
                 .role(user.getRole().name())
                 .isActive(user.getIsActive())
                 .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
+    }
+
+    @Transactional
+    public AuthResponse updateUsername(String currentUsername, UpdateUsernameRequest request) {
+        if (userRepository.existsByUsername(request.newUsername())) {
+            throw new ConflictException("USERNAME_TAKEN", "Username is already taken");
+        }
+
+        User user =
+                userRepository
+                        .findByUsername(currentUsername)
+                        .orElseThrow(
+                                () ->
+                                        new ResourceNotFoundException(
+                                                "User", "username", currentUsername));
+
+        user.setUsername(request.newUsername());
+        userRepository.save(user);
+
+        log.info("User {} updated their username to {}", currentUsername, request.newUsername());
+
+        return buildAuthResponse(user);
+    }
+
+    @Transactional
+    public UserResponse updateEmail(String username, UpdateEmailRequest request) {
+        if (userRepository.existsByEmail(request.newEmail())) {
+            throw new ConflictException("EMAIL_TAKEN", "Email is already taken");
+        }
+
+        User user =
+                userRepository
+                        .findByUsername(username)
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException("User", "username", username));
+
+        user.setEmail(request.newEmail());
+        userRepository.save(user);
+
+        log.info("User {} updated their email to {}", username, request.newEmail());
+
+        return UserResponse.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .isActive(user.getIsActive())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    @Transactional
+    public void updatePassword(String username, UpdatePasswordRequest request) {
+        User user =
+                userRepository
+                        .findByUsername(username)
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException("User", "username", username));
+
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
+            throw new BusinessException("INVALID_PASSWORD", "Current password does not match");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+
+        log.info("User {} successfully updated their password", username);
     }
 
     private AuthResponse buildAuthResponse(User user) {

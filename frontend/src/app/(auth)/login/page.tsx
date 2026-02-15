@@ -29,6 +29,8 @@ import { useLogin } from "@/lib/hooks";
 import { loginSchema, type LoginFormValues } from "@/lib/validators";
 import type { ErrorResponse } from "@/lib/types";
 
+import { User, Lock, ArrowRight, Loader2 } from "lucide-react";
+
 export default function LoginPage() {
   const router = useRouter();
   const login = useLogin();
@@ -55,12 +57,14 @@ export default function LoginPage() {
   }
 
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">CashGrid</CardTitle>
-        <CardDescription>Sign in to your account to continue</CardDescription>
+    <Card className="bg-background/80 gap-0 overflow-hidden border-none py-0 shadow-2xl backdrop-blur-sm">
+      <CardHeader className="space-y-1 p-6">
+        <CardTitle className="text-center text-xl">Welcome Back</CardTitle>
+        <CardDescription className="text-center">
+          Enter your credentials to access your dashboard
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6 pt-0">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
@@ -70,7 +74,14 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your username" {...field} />
+                    <div className="relative">
+                      <User className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+                      <Input
+                        placeholder="username"
+                        className="pl-9"
+                        {...field}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -83,29 +94,50 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      {...field}
-                    />
+                    <div className="relative">
+                      <Lock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        className="pl-9"
+                        {...field}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full" disabled={login.isPending}>
-              {login.isPending ? "Signing in..." : "Sign In"}
+            <Button
+              type="submit"
+              className="mt-2 h-11 w-full gap-2"
+              disabled={login.isPending}
+            >
+              {login.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Authenticating...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter className="justify-center">
-        <p className="text-muted-foreground text-sm">
+      <CardFooter className="bg-muted/50 flex flex-col border-t p-6">
+        <div className="text-muted-foreground w-full text-center text-sm">
           Don&apos;t have an account?{" "}
-          <Link href="/register" className="text-primary hover:underline">
-            Register
+          <Link
+            href="/register"
+            className="text-primary font-semibold hover:underline"
+          >
+            Create an account
           </Link>
-        </p>
+        </div>
       </CardFooter>
     </Card>
   );

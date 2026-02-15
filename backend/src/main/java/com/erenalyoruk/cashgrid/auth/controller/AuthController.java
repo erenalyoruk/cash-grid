@@ -38,4 +38,35 @@ public class AuthController {
         }
         return ResponseEntity.ok(authService.me(principal.getName()));
     }
+
+    @PatchMapping("/me/username")
+    public ResponseEntity<AuthResponse> updateUsername(
+            Principal principal, @Valid @RequestBody UpdateUsernameRequest request) {
+
+        if (principal == null) {
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return ResponseEntity.ok(authService.updateUsername(principal.getName(), request));
+    }
+
+    @PatchMapping("/me/email")
+    public ResponseEntity<UserResponse> updateEmail(
+            Principal principal, @Valid @RequestBody UpdateEmailRequest request) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authService.updateEmail(principal.getName(), request));
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(
+            Principal principal, @Valid @RequestBody UpdatePasswordRequest request) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        authService.updatePassword(principal.getName(), request);
+        return ResponseEntity.noContent().build();
+    }
 }

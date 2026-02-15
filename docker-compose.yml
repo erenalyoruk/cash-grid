@@ -1,4 +1,5 @@
 services:
+
   postgres:
     image: postgres:18-alpine
     container_name: cashgrid-postgres
@@ -9,8 +10,9 @@ services:
       POSTGRES_DB: cashgrid
       POSTGRES_USER: cashgrid
       POSTGRES_PASSWORD: cashgrid_dev
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - cashgrid_pgdata:/var/lib/postgresql/data
+      - pg-data:/var/lib/postgresql/data/pgdata
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U cashgrid"]
       interval: 5s
@@ -51,4 +53,4 @@ services:
       - backend
 
 volumes:
-  cashgrid_pgdata:
+  pg-data:

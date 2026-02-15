@@ -8,7 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AuditLogRepository extends JpaRepository<AuditLog, UUID> {
+public interface AuditLogRepository
+        extends JpaRepository<AuditLog, UUID>, AuditLogRepositoryCustom {
 
     Page<AuditLog> findByEntityTypeAndEntityId(String entityType, UUID entityId, Pageable pageable);
 

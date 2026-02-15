@@ -6,4 +6,10 @@ import lombok.Builder;
 
 @Builder
 public record UserResponse(
-        UUID id, String username, String email, String role, Boolean isActive, Instant createdAt) {}
+        UUID id,
+        String username,
+        String email,
+        String role,
+        Boolean isActive,
+        Instant createdAt,
+        Instant updatedAt) {}

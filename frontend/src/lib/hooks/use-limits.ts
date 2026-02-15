@@ -26,7 +26,7 @@ export function useUpdateLimit() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateLimitRequest }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateLimitRequest }) =>
       limitsApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: LIMITS_KEY });

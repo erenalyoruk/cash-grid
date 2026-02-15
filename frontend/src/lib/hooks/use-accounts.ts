@@ -11,7 +11,7 @@ export function useAccounts(page = 0, size = 10) {
   });
 }
 
-export function useAccount(id: number) {
+export function useAccount(id: string) {
   return useQuery({
     queryKey: [...ACCOUNTS_KEY, id],
     queryFn: () => accountsApi.getById(id),
@@ -34,7 +34,7 @@ export function useUpdateAccount() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdateAccountRequest }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateAccountRequest }) =>
       accountsApi.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ACCOUNTS_KEY });
@@ -46,7 +46,7 @@ export function useDeleteAccount() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: number) => accountsApi.delete(id),
+    mutationFn: (id: string) => accountsApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ACCOUNTS_KEY });
     },
